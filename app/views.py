@@ -2,6 +2,7 @@ from app import app
 from app.models import *
 from app import db
 import random
+from datetime import datetime, timedelta
 import json
 from flask import request, render_template
 
@@ -49,7 +50,9 @@ def delete_user():
 
 @app.route("/delete_all_users",methods=["GET","POST"])
 def delete_all_users():
-    db.session.query(User).delete()
+    two_days_ago = datetime.now() - timedelta(days=2)
+    to_delete = db.query(User).filter(User.timestamp<two_days_ago).all()
+    [db.session.delete(deleteable_element) for deleteable_element in to_delete]
     db.session.commit()
     return "successful"
         
