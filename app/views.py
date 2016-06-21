@@ -27,7 +27,8 @@ def generate_id():
     while User.query.filter_by(unique_id=unique_id).count() > 0:
         unique_id = str(random.randint(10000,99999))
     padding = str(random.randint(10000,99999))
-    user = User(unique_id,padding,'','')
+    #This needs to be aware of the timezone of the User, instead of just doing datetime.now()
+    user = User(unique_id,padding,'','',datetime.now())
     db.session.add(user)
     db.session.commit()
     return {"unique_id":unique_id,"padding":padding}
@@ -64,7 +65,10 @@ def send_url():
 @app.route("/get_location/<id>",methods=["GET","POST"])
 def get_location(id):
     return render_template("get_location.html")
-    
+
+@app.route("/show_db",methods=["GET","POST"])
+def show_db():
+    return render_template("show_db.html",results=User.query.all())
 @app.route("/get_location_information",methods=["GET","POST"])
 def get_location_information():
 
@@ -80,11 +84,13 @@ def get_location_information():
         user = User.query.filter_by(unique_id=unique_id).all()[0]
     except IndexError:
         #if for some reason there was no user id generated, a user id is generated now
-        user = User(unique_id,padding,'','')
+        #This needs to be aware of the timezone of the User, instead of just doing datetime.now()
+        user = User(unique_id,padding,'','',datetime.now())
         db.session.add(user)
         db.session.commit()
     user.latitude = latitude
     user.longitude = longitude
+    user.timestamp = datetime.now()
     db.session.add(user)
     db.session.commit()
     return "successful"

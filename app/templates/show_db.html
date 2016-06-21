@@ -1,0 +1,47 @@
+<html>
+<head>
+	<title></title>
+
+
+</head>
+<body onload="pingServer()"> 
+
+
+
+<ul class="list-group">
+  {% for result in results %}
+  <li class="list-group-item">
+    <h2>{{ result.unique_id }} - Unique ID</h2>
+    <!--  New ul with class of 'courses' -->
+    <ul class='list-group'>
+      	<li class="list-group-item">latitude: {{ result.latitude }} </li>
+		<li class="list-group-item">longitude: {{ result.longitude }} </li>
+		<li class="list-group-item">timestamp: {{ result.timestamp }} </li>
+    </ul>
+  </li>
+  {% endfor %}
+</ul>
+
+
+
+<!-- loading JQuery -->
+<script src="https://code.jquery.com/jquery-3.0.0.min.js"   integrity="sha256-JmvOoLtYsmqlsWxa7mDSLMwa6dZ9rrIdtrrVYRnDRH0=" crossorigin="anonymous"></script>
+
+<!-- Bootstrap from cdn -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+<!-- Javascript portion -->
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+<!-- CSS portion -->
+<script>
+
+function pingServer(){
+	var one_second = 1000;
+	var one_minute = 60*one_second;
+	var two_minutes = 2*one_minute;
+	setTimeout(function(){
+   		window.location.reload(1);
+	}, one_minute);
+}
+</script>
+</body>
+</html>

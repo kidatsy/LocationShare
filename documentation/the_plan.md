@@ -79,4 +79,11 @@ SMS features:
 - because we are getting permission from the browser this is a different experience - Make sure to describe in the message what's happening in the link.
 
 
+Stub:
+
+<li class="list-group-item">latitude: {{ result.latitude }} </li>
+<li class="list-group-item">longitude: {{ result.longitude }} </li>
+<li class="list-group-item">timestamp: {{ result.timestamp }} </li>
+<li class="list-group-item">unique id: {{ result.unique_id }} </li>
+
 
