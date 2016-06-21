@@ -6,10 +6,12 @@ class User(db.Model):
     latitude = db.Column(db.String)
     longitude = db.Column(db.String)
     padding = db.Column(db.String)
+    timestamp = db.Column(db.DateTime)
 
-    def __init__(self,unique_id,padding,latitude,longitude):
+    def __init__(self,unique_id,padding,latitude,longitude,timestamp):
         self.unique_id = unique_id
         self.padding = padding
         self.latitude = latitude
         self.longitude = longitude
+        self.timestamp = timestamp
 

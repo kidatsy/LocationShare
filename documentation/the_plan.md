@@ -64,11 +64,19 @@ Use a virtual env.
 
 Chris will set up everything, just push and use environment variables for things.
 
+realtime update for all the location information
+
+delete anything older than 48 hours only
+
 Frontend:
 
 - bootstrap dashboard like
 - user accounts
 - no high level statistics
+
+SMS features:
+
+- because we are getting permission from the browser this is a different experience - Make sure to describe in the message what's happening in the link.
 
 
 
