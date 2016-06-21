@@ -2,26 +2,43 @@
 <head>
 	<title></title>
 </head>
-<body>
+<body onload="getLocation()">
 
-<button onclick="getLocation()">Get my current Location</button>
+<!-- Display my current Location, for debugging only -->
 <p id="demo"></p>
 
+<!-- loading JQuery -->
+<script   src="https://code.jquery.com/jquery-3.0.0.min.js"   integrity="sha256-JmvOoLtYsmqlsWxa7mDSLMwa6dZ9rrIdtrrVYRnDRH0="   crossorigin="anonymous"></script>
+
+<!-- Small javascript to get location information -->
+
 <script>
+//make sure to comment this out in production, only for testing that location is being retrieved.
 var x = document.getElementById("demo");
 
 function getLocation() {
     if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(showPosition);
+        navigator.geolocation.getCurrentPosition(sendPosition);
     } else { 
         x.innerHTML = "Geolocation is not supported by this browser.";
     }
 }
 
-function showPosition(position) {
+function sendPosition(position) {
+	uri = window.location.href;
+	location_id = uri.slice(uri.lastIndexOf("/")+1,-1);
     x.innerHTML = "Latitude: " + position.coords.latitude + 
     "<br>Longitude: " + position.coords.longitude;
+    $.post("/get_location_information", {
+    	"javascript_data":JSON.stringify({
+    		"latitude":position.coords.latitude,
+    		"longitude":position.coords.longitude,
+    		"location_id":location_id
+    	})
+    });
 }
 </script>
+
+
 </body>
 </html>

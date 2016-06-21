@@ -62,6 +62,8 @@ Beanstalk for serving!  RDS layer (implicitly)
 Use environment variables for configuration with server side stuff.
 Use a virtual env.
 
+Chris will set up everything, just push and use environment variables for things.
+
 Frontend:
 
 - bootstrap dashboard like
