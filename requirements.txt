@@ -2,3 +2,4 @@ Flask
 Flask-SQLAlchemy
 Flask-login
 Flask-Migrate
+gunicorn
