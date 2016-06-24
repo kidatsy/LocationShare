@@ -3,10 +3,11 @@ from flask.ext.script import Manager
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.migrate import Migrate, MigrateCommand
 import flask.ext.login as flask_login
+import os
 
 username,password = "eric_schles","1234"
 app = Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://"+username+":"+password+"@localhost/location_share"
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ["DATABASE_URL"]
 app.secret_key = 'super secret string'
 db = SQLAlchemy(app)
 migrate = Migrate(app,db)
