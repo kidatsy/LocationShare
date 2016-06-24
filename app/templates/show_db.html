@@ -1,26 +1,39 @@
 <html>
 <head>
 	<title></title>
-
+<script src='https://api.mapbox.com/mapbox.js/v2.4.0/mapbox.js'></script>
+<link href='https://api.mapbox.com/mapbox.js/v2.4.0/mapbox.css' rel='stylesheet' />  
 
 </head>
-<body onload="pingServer()"> 
+<body onload="Main()"> 
 
-{# 
-<ul class="list-group">
-  {% for result in results %}
-  <li class="list-group-item">
-    <h2>{{ result.unique_id }} - Unique ID</h2>
-    <!--  New ul with class of 'courses' -->
-    <ul class='list-group'>
-      	<li class="list-group-item">latitude: {{ result.latitude }} </li>
-		<li class="list-group-item">longitude: {{ result.longitude }} </li>
-		<li class="list-group-item">timestamp: {{ result.timestamp }} </li>
-    </ul>
-  </li>
-  {% endfor %}
-</ul>
-#}
+<div class="container">
+  <h2>Admin Controls</h2>
+  
+  <form action="{{url_for('delete_user')}}" method=post>
+  <div class="form-group col-lg-6">
+    <div class="row">
+      <div class="input-group">
+        <span class="input-group-btn">
+          <input name="user_id_to_delete" type="text" class="form-control" placeholder="User ID to delete">
+          <button type="submit" onclick="" class="btn btn-primary">Delete User</button>
+        </span>
+  
+      </div><!-- /input-group -->
+    </div><!-- .row -->
+  </form>
+
+</div>
+
+</div>
+<div class="container">
+  <button onclick="getURL();" class="btn btn-primary">Generate New ID</button>
+  <p id="new_url"></p>
+</div>
+
+<div class="container">
+  <button onclick="deleteAll();" class="btn btn-primary">Clear All Client Data</button>
+</div>
 
 <div class="container">
   <h2>User Information</h2>
@@ -29,6 +42,7 @@
     <thead>
       <tr>
         <th>Unique ID</th>
+        <th>URL</th>
         <th>latitude</th>
         <th>longitude</th>
         <th>timestamp</th>
@@ -39,6 +53,7 @@
       {% for result in results %}
         <tr>
           <td>{{result.unique_id}}</td>
+          <td>{{result.url}}</td>
           <td>{{result.latitude}}</td>
           <td>{{result.longitude}}</td>
           <td>{{result.timestamp}}</td>
@@ -49,7 +64,7 @@
   </table>
 </div>
 
-
+<div id="map" style="width: 600px; height: 400px"></div>
 
 <!-- loading JQuery -->
 <script src="https://code.jquery.com/jquery-3.0.0.min.js"   integrity="sha256-JmvOoLtYsmqlsWxa7mDSLMwa6dZ9rrIdtrrVYRnDRH0=" crossorigin="anonymous"></script>
@@ -61,6 +76,11 @@
 <!-- CSS portion -->
 <script>
 
+function Main(){
+  pingServer();
+  loadMap(); 
+}
+
 function pingServer(){
 	var one_second = 1000;
 	var one_minute = 60*one_second;
@@ -70,6 +90,23 @@ function pingServer(){
 	}, one_minute);
 }
 
+function loadMap(){
+  var locations = JSON.parse({{locations|tojson}});
+  L.mapbox.accessToken = 'pk.eyJ1IjoiZXJpY3NjaGxlcyIsImEiOiI5Zjk4MjVkZTZlMjAwM2I3OTY2OTI4MTJmODVkN2Q3MCJ9.1gRox8Gx76YqrBJiCsxLLQ';  
+  var map = L.mapbox.map('map', 'mapbox.streets')
+  .setView([locations[0]["geometry"]["coordinates"][1],locations[0]["geometry"]["coordinates"][0]],11)
+  .featureLayer.setGeoJSON(locations);
+}
+
+function getURL(){
+  $.get( "/send_url",function(data){
+     document.getElementById("new_url").innerHTML=$.parseJSON(data)["url"];
+  })
+}
+
+function deleteAll(){
+  $.post("/delete_all_users");
+}
 
 </script>
 </body>

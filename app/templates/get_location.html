@@ -29,7 +29,7 @@ function sendPosition(position) {
 	location_id = uri.slice(uri.lastIndexOf("/")+1,-1);
     x.innerHTML = "Latitude: " + position.coords.latitude + 
     "<br>Longitude: " + position.coords.longitude;
-    $.post("/get_location_information", {
+    $.post("/post_location_information", {
     	"javascript_data":JSON.stringify({
     		"latitude":position.coords.latitude,
     		"longitude":position.coords.longitude,
