@@ -6,8 +6,7 @@
 </head>
 <body onload="pingServer()"> 
 
-
-
+{# 
 <ul class="list-group">
   {% for result in results %}
   <li class="list-group-item">
@@ -21,6 +20,34 @@
   </li>
   {% endfor %}
 </ul>
+#}
+
+<div class="container">
+  <h2>User Information</h2>
+  <p>Use the unique id to interact with a user - deleting them</p>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Unique ID</th>
+        <th>latitude</th>
+        <th>longitude</th>
+        <th>timestamp</th>
+        <th>map view</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for result in results %}
+        <tr>
+          <td>{{result.unique_id}}</td>
+          <td>{{result.latitude}}</td>
+          <td>{{result.longitude}}</td>
+          <td>{{result.timestamp}}</td>
+          <td><a href="/map_view/{{result.unique_id}}">map view</a></td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
 
 
 
@@ -42,6 +69,8 @@ function pingServer(){
    		window.location.reload(1);
 	}, one_minute);
 }
+
+
 </script>
 </body>
 </html>

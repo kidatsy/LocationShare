@@ -64,9 +64,9 @@ Use a virtual env.
 
 Chris will set up everything, just push and use environment variables for things.
 
-realtime update for all the location information
+realtime update for all the location information [check]
 
-delete anything older than 48 hours only
+delete anything older than 48 hours only [check]
 
 Frontend:
 
@@ -79,11 +79,6 @@ SMS features:
 - because we are getting permission from the browser this is a different experience - Make sure to describe in the message what's happening in the link.
 
 
-Stub:
 
-<li class="list-group-item">latitude: {{ result.latitude }} </li>
-<li class="list-group-item">longitude: {{ result.longitude }} </li>
-<li class="list-group-item">timestamp: {{ result.timestamp }} </li>
-<li class="list-group-item">unique id: {{ result.unique_id }} </li>
 
 

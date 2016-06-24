@@ -33,6 +33,17 @@ def generate_id():
     db.session.commit()
     return {"unique_id":unique_id,"padding":padding}
 
+def to_geojson(coordinates):
+    print("coordinates",coordinates)
+    dicter = {}
+    dicter["type"] = "Feature"
+    dicter["properties"] = {}
+    dicter["geometry"] = {
+        "type":"Point",
+        "coordinates":[float(coordinates[0]), float(coordinates[1])]
+        }
+    return dicter
+
 @app.route("/",methods=["GET","POST"])
 def index():
     return "stubbed index"
@@ -52,7 +63,7 @@ def delete_user():
 @app.route("/delete_all_users",methods=["GET","POST"])
 def delete_all_users():
     two_days_ago = datetime.now() - timedelta(days=2)
-    to_delete = db.query(User).filter(User.timestamp<two_days_ago).all()
+    to_delete = db.session.query(User).filter(User.timestamp<two_days_ago).all()
     [db.session.delete(deleteable_element) for deleteable_element in to_delete]
     db.session.commit()
     return "successful"
@@ -66,12 +77,19 @@ def send_url():
 def get_location(id):
     return render_template("get_location.html")
 
+@app.route("/map_view/<unique_id>",methods=["GET","POST"])
+def map_view(unique_id):
+    print("unique_id",unique_id)
+    user = User.query.filter_by(unique_id=unique_id).first()
+    locations = to_geojson([user.latitude,user.longitude])
+    return render_template("map_view.html",locations=json.dumps(locations))
+
 @app.route("/show_db",methods=["GET","POST"])
 def show_db():
     return render_template("show_db.html",results=User.query.all())
+
 @app.route("/get_location_information",methods=["GET","POST"])
 def get_location_information():
-
     jsdata = request.form["javascript_data"]
     jsdata = json.loads(jsdata)
     latitude = jsdata["latitude"]
