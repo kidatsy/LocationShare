@@ -78,7 +78,7 @@ def generate_id():
         unique_id = str(random.randint(10000,99999))
     padding = str(random.randint(10000,99999))
     #This needs to be aware of the timezone of the User, instead of just doing datetime.now()
-    user = Clients(unique_id,padding,'','',datetime.now(),"get_location/"+unique_id+padding)
+    user = Clients(unique_id,padding,'','',datetime.now(),"get_location/"+unique_id+padding,False)
     db.session.add(user)
     db.session.commit()
     return {"unique_id":unique_id,"padding":padding}
@@ -121,7 +121,6 @@ def send_url():
     return json.dumps({"url":"get_location/"+dicter["unique_id"]+dicter["padding"]})
 
 @app.route("/get_location/<id>",methods=["GET","POST"])
-@flask_login.login_required
 def get_location(id):
     return render_template("get_location.html")
 
@@ -134,7 +133,6 @@ def map_view(unique_id):
 
 
 @app.route("/post_location_information",methods=["POST"])
-@flask_login.login_required
 def post_location_information():
     jsdata = request.form["javascript_data"]
     jsdata = json.loads(jsdata)
@@ -149,12 +147,14 @@ def post_location_information():
     except IndexError:
         #if for some reason there was no user id generated, a user id is generated now
         #This needs to be aware of the timezone of the User, instead of just doing datetime.now()
-        user = Clients(unique_id,padding,'','',datetime.now())
+        user = Clients(unique_id,padding,'','',datetime.now(),"get_location/"+unique_id+padding,True)
         db.session.add(user)
         db.session.commit()
+        return "successful"
     user.latitude = latitude
     user.longitude = longitude
     user.timestamp = datetime.now()
+    user.link_clicked = True
     db.session.add(user)
     db.session.commit()
     return "successful"

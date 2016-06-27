@@ -33,12 +33,14 @@ class Clients(db.Model):
     padding = db.Column(db.String)
     timestamp = db.Column(db.DateTime)
     url = db.Column(db.String)
+    link_clicked = db.Column(db.Boolean)
 
-    def __init__(self,unique_id,padding,latitude,longitude,timestamp,url):
+    def __init__(self,unique_id,padding,latitude,longitude,timestamp,url,link_clicked):
         self.unique_id = unique_id
         self.padding = padding
         self.latitude = latitude
         self.longitude = longitude
         self.timestamp = timestamp
         self.url = url
-
+        self.link_clicked = link_clicked
+    

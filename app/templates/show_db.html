@@ -1,4 +1,4 @@
-<html>
+1<html>
 <head>
 	<title></title>
 <script src='https://api.mapbox.com/mapbox.js/v2.4.0/mapbox.js'></script>
@@ -46,6 +46,7 @@
         <th>latitude</th>
         <th>longitude</th>
         <th>timestamp</th>
+        <th>link clicked</th>
         <th>map view</th>
       </tr>
     </thead>
@@ -57,6 +58,7 @@
           <td>{{result.latitude}}</td>
           <td>{{result.longitude}}</td>
           <td>{{result.timestamp}}</td>
+          <td>{{result.link_clicked}}</td>
           <td><a href="/map_view/{{result.unique_id}}">map view</a></td>
         </tr>
       {% endfor %}
