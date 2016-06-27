@@ -50,5 +50,218 @@ The last thing I did was make use of bootstrap to make things a little pretty.  
 
 ##Diving in
 
+###Python/Flask
+
+Throughout this guide I will assume you understand the Python programming language.  Familiarity with Flask will not be assumed and I will make every attempt to explain Flask.  If you don't know Python, no worries!  It's very easy to learn.  Here are some resources I've found useful for getting up to speed quickly:
+
+* [Learn Python the Hard Way](http://learnpythonthehardway.org/book/)
+* [MIT's gentle introduction](http://ocw.mit.edu/courses/electrical-engineering-and-computer-science/6-189-a-gentle-introduction-to-programming-using-python-january-iap-2011/)
+* [MIT's computer science intro class in Python](http://ocw.mit.edu/courses/electrical-engineering-and-computer-science/6-00sc-introduction-to-computer-science-and-programming-spring-2011/)
+* [Python - from first principals to Graphs](http://interactivepython.org/runestone/static/pythonds/index.html)
+
+There are also more than a few resources other than this that are great, but those are my personal favorites.  From this point forward I will assume you know how python works!
+
+Okay, so now that we have that out of the way, let's install flask and get a first example out of the way, so you can get started with understanding flask.  The next thing you'll need is pip (the python package manager).  You can get it [here](https://pip.pypa.io/en/stable/installing/).  After you have pip installed, go ahead and open a terminal and type:
+
+`pip install flask`
+
+At this point you should have flask installed.  If for some reason that failed you might be able to get it from another source like `brew` on mac os x, or `apt-get` on ubuntu.  If you're on windows, you can use [this site](http://www.lfd.uci.edu/~gohlke/pythonlibs/).  But for reasons of personal sanity, I highly recommend a linux based system for any and all development work in Python.  It's honestly just easier.  
+
+Once you have flask and pip installed you'll be ready to copy paste the following one page application into a file called `app.py`:
+
+```
+from flask import Flask
+
+app = Flask(__name__)
+
+@app.route("/",methods=["GET","POST"])
+def index():
+	return "Hello world!"
+
+app.run(debug=True)
+```
+
+once you have this code copy/pasted into `app.py` you can go ahead and run:
+
+`python app.py`
+
+This should start a local server.  Now you can go to [http://localhost:5000/](http://localhost:5000/) and you should see a browser window that says "Hello world!".  
+
+There is actually quiet a bit going on here!  First we are creating our application - `app` from a `Flask` object, which we initialize from the current namespace.  Then we decorate methods to control how our different routes get called.  The idea of decoration in Python is a little bit tricky to understand, so let's break it down:
+
+A decorator method is one that takes in a function and then augments the input to the function or output from the function in some way (or both).  In this case the route method, which operates within the `app` object context, augments the function by assigning it's output to the relative route passed into the `route` method.  
+
+A second optional argument is the type of RESTful operations this route supports - in our case, "GET" and "POST", which means you can send data to this route and get data from this route, respectively.  Technically "POST" should only be included for methods that either get further information to display to the user, like on a click event or if the method is submitting form data to the server, but we include it here for purely illustrative purposes.  
+
+The next thing to understand is the `app.run`.  This runs the flask server.  In our fully fledged application we won't be making use of the `app.run` method and will instead use gunicorn - a multithreaded server that performs much better than flask's builtin server.  However, for local testing `app.run` is fine.  
+
+Now that we have a general sense of the basics of a flask route, let's go through and look at our routes.  By convention all flask routes should be stored in `views.py`.  At scale there should really be multiple view files, each with their own blueprint.  But this will do for the size and scale of the current version of the application.  
+
+At this point it might be a good idea to clone the repository:  
+
+`git clone https://github.com/CrisisTextLine/LocationShare.git`
+
+Here's the directory structure the of the application:
+
+```
+location_share/
+	requirements.txt
+	runtime.txt
+	.gitignore
+	Procfile
+	auto_delete_database.py
+	manage.py
+	run.py
+	migrations/
+	app/
+		__init__.py
+		models.py
+		views.py <---
+		static/
+			map.jpg
+		templates/
+			map.html
+			login.html
+			get_location.html
+			map_view.html
+			show_db.html
+```
+
+Okay let's zero in on views.py:
+
+Imports:
+
+```
+from app import app
+from app.models import *
+from app import db
+from app import login_manager
+import random
+from datetime import datetime, timedelta
+import json
+from flask import request, render_template, url_for,redirect,session,g
+import flask.ext.login as flask_login
+```
+
+Notice that we import the other pieces of our flask application from the top level flask directory, that's why we do `from app.models import *` - here app refers to the `app/` directory and `models` refers to `models.py` in the `app/` directory.  You may notice that we also have three objects that we import from the `app/` directory:
+
+* `app` - the app object 
+* `db` - the database object
+* `login_manager` - the application by which we access user state
+
+In order to understand where these objects are coming from we'll need to dig into `__init__.py`.  The `__init__.py` file acts as an initializer for everything available to a python package.  We might want to think of this as the why python packages store global state.  Let's take a look at our `__init__.py` file:
+
+```
+from flask import Flask
+from flask.ext.script import Manager
+from flask.ext.sqlalchemy import SQLAlchemy
+from flask.ext.migrate import Migrate, MigrateCommand
+import flask.ext.login as flask_login
+import os
+
+username,password = "eric_schles","1234"
+app = Flask(__name__)
+#if on localhost: app.config["SQLALCHEMY_DATABASE_URI"] = "postgres://"+username+":"+password+"@localhost/location_share"
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ["DATABASE_URL"]
+app.secret_key = 'super secret string'
+db = SQLAlchemy(app)
+migrate = Migrate(app,db)
+
+manager = Manager(app)
+manager.add_command('db', MigrateCommand)
+
+login_manager = flask_login.LoginManager()
+login_manager.init_app(app)
+
+from app import views,models
+```
+
+Some of this should look familiar from our toy application (defined above).  The first line:
+
+`app = Flask(__name__)` is exaclty the same and defines the flask object we will use to initialize our routes.  It defines the context with which our flask application run and gives us a whole bunch of context specific state.  
+
+Our username and password - defined here:
+
+`username,password = "eric_schles","1234"` only works when we are working in our application locally, so there's no harm in leaving it hardcoded.  We make use of this username and password here:
+
+`#if on localhost: app.config["SQLALCHEMY_DATABASE_URI"] = "postgres://"+username+":"+password+"@localhost/location_share"`
+
+If we are working locally, this should be:
+
+`app.config["SQLALCHEMY_DATABASE_URI"] = "postgres://"+username+":"+password+"@localhost/location_share"`
+
+and then we'd comment out the following line:
+
+#If we are working on the server: app.config["SQLALCHEMY_DATABASE_URI"] = os.environ["DATABASE_URL"]
+
+`app.secret_key = 'super secret string'` - this sets up the secret_key for our application - this is important for flask-login, somehow.  I couldn't figure out how this actually affects things.  But best to chance this to something actually secret on the server, because some how it interacts with flask-login.  
+
+Here we set up the database object:
+
+`db = SQLAlchemy(app)` - SQLAlchemy takes in the application context and creates a database context - db - a database object which we will use to interact with our database.
+
+Here we set up the migration context for local migrations to our database:
+
+`migrate = Migrate(app,db)` - Migrate takes in the application context and creates a migration context - migrate - a migration object which we will use to create and rollback migrations for our database.
+
+Here we setup the manager and add the migration command so we can migrate our database:
+
+`manager = Manager(app)` - Manager takes in the application context and creates the manager context - manager - a manager object which we will use to create and rollback migrations for our database.
+`manager.add_command('db', MigrateCommand)`  - here we add the migrate command so that we can actually use the migrations.  
+
+So a natural question is - why did we need the migrate object if we use the manager to actually do the migrations?  Honest answer, I don't know.  I looked over the Flask-migrate documentation but I couldn't figure out why I need this object since I don't think it ever get's used.  But since this is going to be global to the application, there is probably some internal code that makes use of this context that we just aren't seeing.  
+
+Here we set up our login manager:
+
+`login_manager = flask_login.LoginManager()` - here we create our login manager object.
+`login_manager.init_app(app)` - here we take in the application context and initializes a `login_manager` context with the app context.
+
+Finally, we import the views and models:
+
+`from app import views,models` - it feels a bit odd to do this, but here app refers to `app/` directory, not the `app` object.  More or less we are bringing views and models into the application context.  The flask documentation has a better explanation for this, but it feels a bit awkward and strange, so I don't tend to dig too deep into it.  
+
+Now that we understand where all our global objects are coming, let's see how they are used in our `views.py`, the meat of our application:
+
+###Understanding Login
+
+```
+#These routes are for logging in and out
+@app.route('/', methods=['GET', 'POST'])
+def login():
+    if request.method == 'GET':
+        return render_template("login.html")
+
+    email = request.form['email']
+    password = request.form['pw']
+    user = User.query.filter_by(email=email).first()
+    if user:
+        if user.password == password:
+            flask_login.login_user(user,force=True)
+            flask_login.current_user = user
+            return redirect(url_for('show_db'))
+    return 'Bad login'
+
+@app.before_request
+def before_request():
+    g.user = flask_login.current_user
+    
+@login_manager.unauthorized_handler
+def unauthorized_handler():
+    return 'Unauthorized'
+
+@login_manager.user_loader
+def load_user(id):
+    return User.query.get(int(id))
+
+@app.route('/logout')
+def logout():
+    flask_login.logout_user()
+    return 'Logged out'
+```
+
+The login route is the first page that users see.  It should look like this:
+
+![](login_screen.png)
+
 
 

@@ -13,13 +13,6 @@ import flask.ext.login as flask_login
 def login():
     if request.method == 'GET':
         return render_template("login.html")
-    # '''
-    #            <form action='/' method='POST'>
-    #             <input type='text' name='email' id='email' placeholder='email'></input>
-    #             <input type='password' name='pw' id='pw' placeholder='password'></input>
-    #             <input type='submit' name='submit'></input>
-    #            </form>
-    #            '''
 
     email = request.form['email']
     password = request.form['pw']
