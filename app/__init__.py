@@ -7,6 +7,7 @@ import os
 
 username,password = "eric_schles","1234"
 app = Flask(__name__)
+#if on localhost: app.config["SQLALCHEMY_DATABASE_URI"] = "postgres://"+username+":"+password+"@localhost/location_share"
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ["DATABASE_URL"]
 app.secret_key = 'super secret string'
 db = SQLAlchemy(app)
