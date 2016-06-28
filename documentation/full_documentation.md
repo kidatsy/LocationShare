@@ -184,7 +184,7 @@ Our username and password - defined here:
 
 `username,password = "eric_schles","1234"` only works when we are working in our application locally, so there's no harm in leaving it hardcoded.  We make use of this username and password here:
 
-`#if on localhost: app.config["SQLALCHEMY_DATABASE_URI"] = "postgres://"+username+":"+password+"@localhost/location_share"`
+```#if on localhost: app.config["SQLALCHEMY_DATABASE_URI"] = "postgres://"+username+":"+password+"@localhost/location_share"```
 
 If we are working locally, this should be:
 
@@ -192,7 +192,7 @@ If we are working locally, this should be:
 
 and then we'd comment out the following line:
 
-#If we are working on the server: app.config["SQLALCHEMY_DATABASE_URI"] = os.environ["DATABASE_URL"]
+```#If we are working on the server: app.config["SQLALCHEMY_DATABASE_URI"] = os.environ["DATABASE_URL"]```
 
 `app.secret_key = 'super secret string'` - this sets up the secret_key for our application - this is important for flask-login, somehow.  I couldn't figure out how this actually affects things.  But best to chance this to something actually secret on the server, because some how it interacts with flask-login.  
 
