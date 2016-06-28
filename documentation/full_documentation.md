@@ -264,4 +264,56 @@ The login route is the first page that users see.  It should look like this:
 ![](login_screen.png)
 
 
+The login function get's the login information via `request` which comes with flask.  If you are wondering how to import request:
+
+`from flask import request`.  
+
+`request` is one of the most powerful objects in the flask framework - it treats form data as part of a dictionary - so you can get any form data, via the input field's name attribute.  So for example, to get the email from the form we simply do:
+
+`email = request.form['email']`
+
+We'll make use of the information we get from the email field to get all the user information:
+
+`user = User.query.filter_by(email=email).first()`.  We'll use this to ensure that the email address and password we have on file were correctly input:
+
+```
+password = request.form['pw']
+if user:
+        if user.password == password:
+```
+
+Once we have the password verified we log them in:
+
+```
+flask_login.login_user(user,force=True)
+flask_login.current_user = user
+return redirect(url_for('show_db'))
+```
+
+This is one of the best parts about flask login - you can login user's intuitively with a single method call:
+
+`flask_login.login_user(user,force=True)`.
+
+Once we've logged in the user we redirect to the route, show_db - this is the name of the function in our views.  We'll need to make sure, when writing new function that the method exists in our view context, before (in our case meaning in the `views.py` file), before we write any redirect's for it.  
+
+Now to see the real power of the Flask-login, let's look at the url we get redirected to after login, show_db:
+
+```
+@app.route("/show_db",methods=["GET","POST"])
+@flask_login.login_required
+def show_db():
+    locations = [to_geojson([elem.latitude,elem.longitude]) for elem in Clients.query.all() if elem.latitude != '' and elem.longitude != '']
+    return render_template("show_db.html",results=Clients.query.all(),locations=json.dumps(locations))
+```
+
+This may seem like a pretty simple method (and it should), but it's super powerful!  Note first that we have a second decorator after `@app.route` - `@flask_login.login_required`.  This is all we need to ensure that our user logged in before they were able to see this route!  Otherwise users are met with a user unauthorized screen and won't be able to see any information!  Pretty awesome, huh?
+
+Our `show_db` route, get's all our users, in this case defined as clients, from the parlenance of social workers, and get's all our geographical data, from users who have provided that information to us.  This will be shown as follows:
+
+![](show_db.png)
+
+As you can see, we can see all the information about our users and we can see this information geographically, via a map (below the user data).  This is where the user - client information goes and the location information goes, respectively.
+
+Now let's dig into the `show_db.html` file to understand how flask-templates get rendered and to see some javascript in action!
+
 
