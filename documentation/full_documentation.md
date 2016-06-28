@@ -316,4 +316,120 @@ As you can see, we can see all the information about our users and we can see th
 
 Now let's dig into the `show_db.html` file to understand how flask-templates get rendered and to see some javascript in action!
 
+```
+<!-- ..snipped from show_db.html.. -->
+
+<div class="container">
+  <h2>User Information</h2>
+  <p>Use the unique id to interact with a user - deleting them</p>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Unique ID</th>
+        <th>URL</th>
+        <th>latitude</th>
+        <th>longitude</th>
+        <th>timestamp</th>
+        <th>link clicked</th>
+        <th>map view</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for result in results %}
+        <tr>
+          <td>{{result.unique_id}}</td>
+          <td>{{result.url}}</td>
+          <td>{{result.latitude}}</td>
+          <td>{{result.longitude}}</td>
+          <td>{{result.timestamp}}</td>
+          <td>{{result.link_clicked}}</td>
+          <td><a href="/map_view/{{result.unique_id}}">map view</a></td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+```
+
+I won't be going through all the html code, because 1 - I'm assuming you understand HTML and 2 - that'd just be really hard to follow.  
+
+So let's zero in on our evaluated code, specfically the for-loop:
+
+```
+   {% for result in results %}
+        <tr>
+          <td>{{result.unique_id}}</td>
+          <td>{{result.url}}</td>
+          <td>{{result.latitude}}</td>
+          <td>{{result.longitude}}</td>
+          <td>{{result.timestamp}}</td>
+          <td>{{result.link_clicked}}</td>
+          <td><a href="/map_view/{{result.unique_id}}">map view</a></td>
+        </tr>
+      {% endfor %}
+```
+
+This code makes use of `{%` and `%}` to start and end our for-loop statement.  Inside of the for loop, each element of our database object is evaluated to it's string equivalent, for example - `{{result.unique_id}}`, which is then displayed to the user.  It's important to note that you can evaluate this information even inside of strings as seen through this:  `<a href="/map_view/{{result.unique_id}}">`.  Also note that we need to end our for loop with:
+
+`{% endfor %}`.
+
+So what's the general rule?  For control flow we use `{%` and  `%}`.  For evaluation of objects we use `{{` and `}}`.  So to do a computation and display it as a string use: `{{` and `}}`.  I guess a better rule of thumb is, anything you want the user to see makes use of: `{{` and `}}`.  
+
+Now let's understand our Javascript functions:
+
+```
+<script>
+
+function Main(){
+  pingServer();
+  loadMap(); 
+}
+
+function pingServer(){
+	var one_second = 1000;
+	var one_minute = 60*one_second;
+	var two_minutes = 2*one_minute;
+	setTimeout(function(){
+   		window.location.reload(1);
+	}, one_minute);
+}
+
+function loadMap(){
+  var locations = JSON.parse({{locations|tojson}});
+  L.mapbox.accessToken = 'pk.eyJ1IjoiZXJpY3NjaGxlcyIsImEiOiI5Zjk4MjVkZTZlMjAwM2I3OTY2OTI4MTJmODVkN2Q3MCJ9.1gRox8Gx76YqrBJiCsxLLQ';  
+  var map = L.mapbox.map('map', 'mapbox.streets')
+  .setView([locations[0]["geometry"]["coordinates"][1],locations[0]["geometry"]["coordinates"][0]],11)
+  .featureLayer.setGeoJSON(locations);
+}
+
+function getURL(){
+  $.get( "/send_url",function(data){
+     document.getElementById("new_url").innerHTML=$.parseJSON(data)["url"];
+  })
+}
+
+function deleteAll(){
+  $.post("/delete_all_users");
+}
+
+</script>
+```
+
+The pingServer method reloads our page, displaying any new information from the database - here we reload once a minute.  
+
+The loadMap function gets all our information from the flask-server on reload or load, as well and displays it to the user.  Notice that loadMap expects [GeoJson](http://geojson.org/).  Our getURL function, which we use here:
+
+![](get_url.png)
+
+(A button found in our admin controls section in /show_db)
+
+This makes use of JQuery's simple syntax to make a get request and then pass the generated url to our front end.  For more information on this please check out:
+
+* [jquery & flask, first stackoverflow answer](http://stackoverflow.com/questions/29987323/how-do-i-send-data-from-js-to-python-with-flask)
+
+And last but not least, if you want to delete all users older than 48 hours ago, you can use the `deleteAll` method, which is activated by this button:
+
+![](delete_all.png)
+
+Everything else should be pretty straight forward and therefore won't be covered here.  If needed, please feel free to contact Eric Schles @ ericschles@gmail.com if you feel this section is missing something or for further questions. 
 
