@@ -6,7 +6,7 @@ import random
 from datetime import datetime, timedelta
 import json
 from flask import request, render_template, url_for,redirect,session,g
-import flask.ext.login as flask_login
+import flask_login as flask_login
 
 #These routes are for logging in and out
 @app.route('/', methods=['GET', 'POST'])

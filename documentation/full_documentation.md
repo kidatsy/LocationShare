@@ -140,7 +140,7 @@ import random
 from datetime import datetime, timedelta
 import json
 from flask import request, render_template, url_for,redirect,session,g
-import flask.ext.login as flask_login
+import flask_login as flask_login
 ```
 
 Notice that we import the other pieces of our flask application from the top level flask directory, that's why we do `from app.models import *` - here app refers to the `app/` directory and `models` refers to `models.py` in the `app/` directory.  You may notice that we also have three objects that we import from the `app/` directory:
@@ -153,10 +153,10 @@ In order to understand where these objects are coming from we'll need to dig int
 
 ```
 from flask import Flask
-from flask.ext.script import Manager
-from flask.ext.sqlalchemy import SQLAlchemy
-from flask.ext.migrate import Migrate, MigrateCommand
-import flask.ext.login as flask_login
+from flask_script import Manager
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate, MigrateCommand
+import flask_login as flask_login
 import os
 
 username,password = "eric_schles","1234"
