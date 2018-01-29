@@ -5,7 +5,7 @@ from flask_migrate import Migrate, MigrateCommand
 import flask_login as flask_login
 import os
 
-username,password = "eric_schles","1234"
+username,password = "localhost","1234"
 app = Flask(__name__)
 # for localhost development:
 # app.config["SQLALCHEMY_DATABASE_URI"] = "postgres://"+username+":"+password+"@localhost/location_share"
